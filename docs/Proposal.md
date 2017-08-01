@@ -13,6 +13,7 @@ The goal is to move left and right in order to avoid the incoming wrenches that 
 - [ ] Use &#8592;/&#8594; keys to move player from left to right.
 - [ ] Increasing score as time passes.
 - [ ] Registers hit and loses life.
+- [ ] Power Ups / Bad Power Ups ex. shield / moving slower
 
 
 ### Wireframe
@@ -50,5 +51,4 @@ Finish up on any styling and or bugs still present. Use remaining time to try to
 
 #### BONUS
 - User being able to set difficulty starting level. Get points faster.
-- Power Ups / Bad Power Ups ex. shield / moving slower
 - Music/animations with object interactions.
