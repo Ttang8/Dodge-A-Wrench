@@ -128,18 +128,19 @@ document.addEventListener('DOMContentLoaded', function () {
   var introSpeech = new Audio('assets/audio/intro_speech_dodge.mp3');
   // introSpeech.play();
 
-  var pause = false;
+  var paused = false;
   var muteCheck = false;
   window.addEventListener('keypress', function (event) {
-    if (event.keyCode === 112) {
-      if (pause) {
-        pause = false;
-      } else {
-        pause = true;
-      }
-    }
+    // if (event.keyCode === 112) {
+    //   if (pause) {
+    //     pause = false;
+    //   } else {
+    //     pause = true;
+    //   }
+    // }
     if (event.keyCode === 13) {
       newGame();
+      // togglePause();
     }
     if (event.keyCode === 109) {
 
@@ -186,7 +187,13 @@ document.addEventListener('DOMContentLoaded', function () {
     drawMuteOff();
   };
 
+  var togglePause = function togglePause() {
+    paused = !paused;
+  };
+
+  var myReq = void 0;
   var update = function update(deltaTime) {
+    console.log(paused);
     if (muteCheck) {
       bgMusic.volume = 0;
     } else {
@@ -211,7 +218,9 @@ document.addEventListener('DOMContentLoaded', function () {
     wrench.update(deltaTime);
     wrench.destroy();
     wrench.handleThrow();
-    var myReq = requestAnimationFrame(animate);
+    if (!paused) {
+      myReq = requestAnimationFrame(animate);
+    }
     if (player.lives === 0) {
       // ctx.clearRect(player.data.cx, player.data.cy, 64, 64);
 
