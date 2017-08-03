@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
   buttonImage.src = './assets/images/button.png';
 
   var drawBg = function drawBg() {
-    ctx.drawImage(backgroundImage, 0, 0, 832, 600);
+    ctx.drawImage(backgroundImage, 0, 0, 833, 600);
   };
 
   var drawLeftUp = function drawLeftUp() {
@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // bgMusic.play();
 
   var introSpeech = new Audio('assets/audio/intro_speech_dodge.mp3');
-  introSpeech.play();
+  // introSpeech.play();
 
   var pause = false;
   var muteCheck = false;
@@ -166,16 +166,32 @@ document.addEventListener('DOMContentLoaded', function () {
   var wrench = void 0;
   var player = void 0;
 
+  wrench = new _wrench2.default();
+  player = new _player2.default();
+
   var newGame = function newGame() {
     wrench = new _wrench2.default();
     player = new _player2.default();
     player.lives = 5;
-    introSpeech.pause();
+    // introSpeech.pause();
     bgMusic.play();
     animate();
   };
 
+  window.onload = function () {
+    drawBg();
+    player.draw(ctx);
+    drawLeftUp();
+    drawRightUp();
+    drawMuteOff();
+  };
+
   var update = function update(deltaTime) {
+    if (muteCheck) {
+      bgMusic.volume = 0;
+    } else {
+      bgMusic.volume = 0.1;
+    }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBg();
     ctx.font = '30px Gloria Hallelujah';
@@ -189,16 +205,24 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     drawLeftUp();
     drawRightUp();
+
+    wrench.create();
+    wrench.draw(ctx);
+    wrench.update(deltaTime);
+    wrench.destroy();
+    wrench.handleThrow();
+    var myReq = requestAnimationFrame(animate);
     if (player.lives === 0) {
+      // ctx.clearRect(player.data.cx, player.data.cy, 64, 64);
+
       player.data.sy = 128;
       player.data.sx = 64;
       player.draw(ctx);
       cancelAnimationFrame(myReq);
       bgMusic.pause();
-    } else {
-
-      player.draw(ctx);
     }
+
+    player.draw(ctx);
     player.update(deltaTime);
     if (key && key === 37) {
       player.move(-4);
@@ -209,15 +233,7 @@ document.addEventListener('DOMContentLoaded', function () {
       player.move(4);
       drawRightDown();
     }
-
-    wrench.create();
-    wrench.draw(ctx);
-    wrench.update(deltaTime);
-    wrench.destroy();
-    wrench.handleThrow();
-
     wrench.hit(player);
-    var myReq = requestAnimationFrame(animate);
   };
 
   var animate = function animate() {
@@ -227,6 +243,36 @@ document.addEventListener('DOMContentLoaded', function () {
     lastTime = time;
     update(deltaTime);
   };
+
+  var updateButtons = function updateButtons() {
+    if (muteCheck === true) {
+      drawMuteOn();
+    } else {
+      drawMuteOff();
+    }
+    if (muteCheck) {
+      bgMusic.volume = 0;
+    } else {
+      bgMusic.volume = 0.1;
+    }
+    drawLeftUp();
+    drawRightUp();
+    if (key && key === 37) {
+      // player.move(-4);
+      drawLeftDown();
+    }
+
+    if (key && key === 39) {
+      // player.move(4);
+      drawRightDown();
+    }
+  };
+
+  var animateButtons = function animateButtons() {
+    updateButtons();
+    requestAnimationFrame(animateButtons);
+  };
+  animateButtons();
 });
 
 /***/ }),

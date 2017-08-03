@@ -6,11 +6,47 @@
     <script src="https://code.createjs.com/easeljs-0.8.2.min.js"></script>
     <script src="https://code.createjs.com/tweenjs-0.6.2.min.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Gloria+Hallelujah" rel="stylesheet">
+    <script type="application/javascript" src="bundle.js"></script>
     <title>Dodge a Wrench</title>
   </head>
   <body>
-    <canvas id="myCanvas" height="600" width="832"></canvas>
-    <canvas id="buttons" height="100" width="350"></canvas>
-    <script type="application/javascript" src="bundle.js"></script>
+    <div>
+      <canvas id="myCanvas" height="600" width="832"></canvas>
+      <div class="right-side">
+        <div class="header">
+          <h1>Dodge-A-Wrench</h1>
+          Keys:
+          <ul>
+            <li>
+              -Start with 5 lives
+            </li>
+            <li>
+              -Use left/right arrow keys to move player
+            </li>
+            <li>
+              -Press Enter to Start/Pause Game
+            </li>
+            <li>
+              - Press m to mute music
+            </li>
+          </ul>
+            Directions:
+            <ul>
+
+              <li>
+                -Avoid thrown wrenches as long as you can
+              </li>
+              <li>
+                -Collect the dragonballs to get buff and survive one wrench hit without
+                losing a life
+              </li>
+              <li>
+                -Get the highest score possible
+              </li>
+            </ul>
+        </div>
+        <canvas id="buttons" height="100" width="350"></canvas>
+      </div>
+    </div>
   </body>
 </html>
