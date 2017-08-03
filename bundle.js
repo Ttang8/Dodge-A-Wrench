@@ -74,68 +74,159 @@ var _wrench = __webpack_require__(1);
 
 var _wrench2 = _interopRequireDefault(_wrench);
 
+var _player = __webpack_require__(2);
+
+var _player2 = _interopRequireDefault(_player);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-document.addEventListener("DOMContentLoaded", function () {
-  var canvasEl = document.getElementById("myCanvas");
-  canvasEl.width = 1420;
-  canvasEl.height = 680;
-  var ctx = canvasEl.getContext("2d");
+document.addEventListener('DOMContentLoaded', function () {
+  var canvas = document.getElementById('myCanvas');
+  var ctx = canvas.getContext('2d');
 
-  var boardStart = canvasEl.width / 4;
+  var buttonCanvas = document.getElementById('buttons');
+  var ctxBut = buttonCanvas.getContext('2d');
 
-  var wrenches = [];
+  var backgroundImage = new Image();
+  backgroundImage.src = './assets/images/floor.png';
+  var buttonImage = new Image();
+  buttonImage.src = './assets/images/button.png';
 
-  ctx.scale(10, 10);
-
-  var matrix = [[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0]];
-
-  var draw = function draw() {
-
-    ctx.fillStyle = 'black';
-    ctx.fillRect(boardStart / 10, 0, canvasEl.width / 20, canvasEl.height);
-
-    // ctx.clearRect(0,0, canvasEl.width, canvasEl.height);
-    drawMatrix(matrix, offset);
+  var drawBg = function drawBg() {
+    ctx.drawImage(backgroundImage, 0, 0, 832, 600);
   };
 
-  var drawMatrix = function drawMatrix(matrix, offset) {
-    matrix.forEach(function (row, y) {
-      row.forEach(function (value, x) {
-        if (value !== 0) {
-          ctx.fillStyle = 'red';
-          ctx.fillRect(x + offset.x, y + offset.y, 1, 1);
-        }
-      });
-    });
+  var drawLeftUp = function drawLeftUp() {
+    ctxBut.drawImage(buttonImage, 100, 1062, 230, 230, 0, 0, 90, 90);
   };
 
-  var dropCounter = 0;
-  var dropInterval = 10;
+  var drawLeftDown = function drawLeftDown() {
+    ctxBut.drawImage(buttonImage, 348, 1062, 230, 230, 0, 0, 90, 90);
+  };
+
+  var drawRightUp = function drawRightUp() {
+    ctxBut.drawImage(buttonImage, 100, 802, 230, 230, 100, 0, 90, 90);
+  };
+
+  var drawRightDown = function drawRightDown() {
+    ctxBut.drawImage(buttonImage, 348, 802, 230, 230, 100, 0, 90, 90);
+  };
+
+  var drawMuteOff = function drawMuteOff() {
+    ctxBut.drawImage(buttonImage, 348, 5496, 230, 230, 250, 0, 90, 90);
+  };
+
+  var drawMuteOn = function drawMuteOn() {
+    ctxBut.drawImage(buttonImage, 615, 5496, 230, 230, 250, 0, 90, 90);
+  };
+
+  var bgMusic = new Audio('assets/audio/bg_music.mp3');
+  bgMusic.loop = true;
+  bgMusic.volume = 0.1;
+  // bgMusic.play();
+
+  var introSpeech = new Audio('assets/audio/intro_speech_dodge.mp3');
+  introSpeech.play();
+
+  var pause = false;
+  var muteCheck = false;
+  window.addEventListener('keypress', function (event) {
+    if (event.keyCode === 112) {
+      if (pause) {
+        pause = false;
+      } else {
+        pause = true;
+      }
+    }
+    if (event.keyCode === 13) {
+      newGame();
+    }
+    if (event.keyCode === 109) {
+
+      if (muteCheck) {
+        muteCheck = false;
+      } else {
+        muteCheck = true;
+      }
+    }
+  });
+
+  var key = void 0;
+  window.addEventListener('keydown', function (event) {
+    key = event.keyCode;
+  });
+
+  window.addEventListener('keyup', function (e) {
+    key = 0;
+  });
+
   var lastTime = 0;
-  var update = function update() {
+  var execute = 0;
+  var deltaTime = void 0;
+  var wrench = void 0;
+  var player = void 0;
+
+  var newGame = function newGame() {
+    wrench = new _wrench2.default();
+    player = new _player2.default();
+    player.lives = 5;
+    introSpeech.pause();
+    bgMusic.play();
+    animate();
+  };
+
+  var update = function update(deltaTime) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawBg();
+    ctx.font = '30px Gloria Hallelujah';
+    ctx.fillStyle = 'red';
+    ctx.fillText('Lives: ' + player.lives, 25, 100);
+
+    if (muteCheck === true) {
+      drawMuteOn();
+    } else {
+      drawMuteOff();
+    }
+    drawLeftUp();
+    drawRightUp();
+    if (player.lives === 0) {
+      player.data.sy = 128;
+      player.data.sx = 64;
+      player.draw(ctx);
+      cancelAnimationFrame(myReq);
+      bgMusic.pause();
+    } else {
+
+      player.draw(ctx);
+    }
+    player.update(deltaTime);
+    if (key && key === 37) {
+      player.move(-4);
+      drawLeftDown();
+    }
+
+    if (key && key === 39) {
+      player.move(4);
+      drawRightDown();
+    }
+
+    wrench.create();
+    wrench.draw(ctx);
+    wrench.update(deltaTime);
+    wrench.destroy();
+    wrench.handleThrow();
+
+    wrench.hit(player);
+    var myReq = requestAnimationFrame(animate);
+  };
+
+  var animate = function animate() {
     var time = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
-    var deltaTime = time - lastTime;
+    deltaTime = time - lastTime;
     lastTime = time;
-
-    dropCounter += deltaTime;
-    if (dropCounter > dropInterval) {
-      offset.y += 1;
-      dropCounter = 0;
-    }
-    draw();
-    requestAnimationFrame(update);
+    update(deltaTime);
   };
-
-  var offset = {
-    x: boardStart / (Math.random() * 6.5 + 3.5),
-    y: 0
-  };
-
-  update();
-  // const game = new Game();
-  // new GameView(game, ctx).start();
 });
 
 /***/ }),
@@ -149,13 +240,218 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Wrench = function Wrench() {
-  _classCallCheck(this, Wrench);
-};
+var Wrench = function () {
+  function Wrench() {
+    _classCallCheck(this, Wrench);
+
+    this.image = new Image();
+    this.image.src = './assets/images/wrench_small.png';
+    this.wrenchHit = new Audio('assets/audio/wrench_hit.mp3');
+    this.wrenchHit.volume = 1;
+
+    this.data = {
+      sx: 0,
+      sy: 0,
+      sw: 64,
+      sh: 64,
+      cx: 0,
+      cy: 0,
+      dw: 64,
+      dh: 64
+    };
+    this.wrenches = [];
+    this.execute = 0;
+  }
+
+  _createClass(Wrench, [{
+    key: 'create',
+    value: function create() {
+      if (this.data.cx < 832) {
+        this.wrenches.push({
+          sx: this.data.sx,
+          sy: this.data.sy,
+          cx: this.data.cx,
+          cy: this.data.cy,
+          width: 64,
+          height: 64,
+          throwing: false
+        });
+      }
+      this.data.cx += 64;
+    }
+  }, {
+    key: 'draw',
+    value: function draw(ctx) {
+      var _this = this;
+
+      this.wrenches.forEach(function (wrench, idx) {
+        ctx.drawImage(_this.image, wrench.sx, wrench.sy, wrench.width, wrench.height, wrench.cx, wrench.cy, wrench.width, wrench.height);
+      });
+    }
+  }, {
+    key: 'update',
+    value: function update(deltaTime) {
+      var _this2 = this;
+
+      this.execute += deltaTime;
+      this.wrenches.forEach(function (wrench, idx) {
+        if (wrench.throwing) {
+          wrench.cy += 5;
+          if (_this2.execute > 100) {
+            wrench.sx += 64;
+          }
+          if (wrench.sx > 192) {
+            wrench.sx = 0;
+          }
+        }
+      });
+      if (this.execute > 100) {
+        this.execute = 0;
+      }
+    }
+  }, {
+    key: 'destroy',
+    value: function destroy() {
+      this.wrenches.forEach(function (wrench, idx) {
+        if (wrench.cy >= 612) {
+          wrench.throwing = false;
+          wrench.sx = 0;
+          wrench.cy = 0;
+        }
+      });
+    }
+  }, {
+    key: 'setThrow',
+    value: function setThrow(idx) {
+      if (this.wrenches.length === 13) {
+        this.wrenches[idx].throwing = true;
+      }
+    }
+  }, {
+    key: 'handleThrow',
+    value: function handleThrow() {
+      var throwInterval = Math.round(Math.random() * 4);
+      if (throwInterval === 4) {
+        this.setThrow(Math.floor(Math.random() * 13));
+      }
+    }
+  }, {
+    key: 'hit',
+    value: function hit(player) {
+      for (var i = 0; i < this.wrenches.length; i++) {
+        var playerLeft = player.data.cx + 0;
+        var playerRight = player.data.cx + 64;
+        if (this.wrenches[i].cx + 32 > playerLeft && this.wrenches[i].cx + 32 < playerRight && this.wrenches[i].cy + 32 > player.data.cy && this.wrenches[i].cy + 32 < player.data.cy + 64) {
+          this.wrenchHit.play();
+          this.wrenches[i].cy = 0;
+          this.wrenches[i].throwing = false;
+          player.lives -= 1;
+          player.hit = true;
+        }
+      }
+    }
+  }]);
+
+  return Wrench;
+}();
 
 exports.default = Wrench;
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Player = function () {
+  function Player() {
+    _classCallCheck(this, Player);
+
+    this.image = new Image();
+    this.image.src = './assets/images/dodgeball_player.png';
+    this.lives = 5;
+    this.execute = 0;
+    this.hit = false;
+
+    this.data = {
+      sx: 0,
+      sy: 0,
+      sw: 64,
+      sh: 64,
+      cx: 400,
+      cy: 536,
+      dw: 64,
+      dh: 64
+    };
+  }
+
+  _createClass(Player, [{
+    key: 'draw',
+    value: function draw(ctx) {
+      ctx.drawImage(this.image, this.data.sx, this.data.sy, this.data.sw, this.data.sh, this.data.cx, this.data.cy, this.data.dw, this.data.dh);
+    }
+  }, {
+    key: 'update',
+    value: function update(deltaTime) {
+      this.execute += deltaTime;
+      if (this.hit) {
+        this.data.sx = 0;
+        this.data.sy = 128;
+        if (this.execute > 1000) {
+          this.execute = 0;
+          this.hit = false;
+        }
+      } else {
+        if (this.execute > 200) {
+          this.data.sx += 64;
+          this.data.sy = 0;
+        }
+        if (this.data.sx > 64) {
+          this.data.sx = 0;
+          this.data.sy = 0;
+        }
+        if (this.execute > 200) {
+          this.execute = 0;
+        }
+      }
+    }
+  }, {
+    key: 'move',
+    value: function move(speed) {
+      if (speed < 0) {
+        if (this.data.cx > 0) {
+          this.data.cx += speed;
+        }
+      } else {
+        if (this.data.cx < 800 - 32) {
+          this.data.cx += speed;
+        }
+      }
+    }
+  }, {
+    key: 'kill',
+    value: function kill(ctx) {
+      this.data.sy = 336;
+    }
+  }]);
+
+  return Player;
+}();
+
+exports.default = Player;
 
 /***/ })
 /******/ ]);

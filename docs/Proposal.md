@@ -24,7 +24,7 @@ Game window in the center of the browser. Points and lives to the left of the ga
 
 ### Technologies
 - JavaScript with `jquery` for logic.
-- `HTML5 Canvas` with `Easel.js` used for render and DOM manipulation.
+- `HTML5 Canvas` used for render and DOM manipulation.
 - Webpack for bundling.
 
 Possible scripts involved in project:
@@ -35,7 +35,7 @@ Possible scripts involved in project:
 ### Implementation Timeline
 #### Day 1
 
-Set up Webpack and learning `Easel.js`. Constructing the canvas.
+Set up Webpack and learning Canvas. Constructing the canvas.
 
 #### Day 2
 
