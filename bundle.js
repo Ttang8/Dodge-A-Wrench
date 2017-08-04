@@ -577,6 +577,7 @@ var Wrench = function () {
           this.wrenchHit.play();
           this.wrenches[i].cy = 0;
           this.wrenches[i].throwing = false;
+          this.wrenches[i].sx = 0;
           if (player.superSaiyan) {
             player.superSaiyan = false;
           } else {
