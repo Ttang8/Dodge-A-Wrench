@@ -272,6 +272,7 @@ document.addEventListener('DOMContentLoaded', function () {
     wrench.update(deltaTime);
     wrench.destroy();
     wrench.handleThrow();
+    // console.log(player.superSaiyan);
     if (player.lives === 0) {
       // ctx.clearRect(player.data.cx, player.data.cy, 64, 64);
 
@@ -297,6 +298,7 @@ document.addEventListener('DOMContentLoaded', function () {
       drawRightDown();
     }
     wrench.hit(player, muteCheck);
+    wrench.powerUp(player);
   };
 
   var count = 0;
@@ -505,6 +507,12 @@ var Wrench = function () {
           wrench.cy = 0;
         }
       });
+      this.powerBall.forEach(function (ball) {
+        if (ball.cy >= 612) {
+          ball.throwing = false;
+          ball.cy = -64;
+        }
+      });
     }
   }, {
     key: 'setThrow',
@@ -534,8 +542,8 @@ var Wrench = function () {
         this.setThrow(Math.floor(Math.random() * 13));
       }
 
-      var ballProb = Math.round(Math.random() * 20);
-      if (ballProb === 20) {
+      var ballProb = Math.round(Math.random() * 100);
+      if (ballProb === 100) {
         this.setThrowBall(Math.floor(Math.random() * 13));
       }
     }
@@ -554,8 +562,24 @@ var Wrench = function () {
           this.wrenchHit.play();
           this.wrenches[i].cy = 0;
           this.wrenches[i].throwing = false;
-          player.lives -= 1;
+          if (player.superSaiyan) {
+            player.superSaiyan = false;
+          } else {
+            player.lives -= 1;
+          }
           player.hit = true;
+        }
+      }
+    }
+  }, {
+    key: 'powerUp',
+    value: function powerUp(player) {
+      for (var i = 0; i < this.powerBall.length; i++) {
+        var playerLeft = player.data.cx + 0;
+        var playerRight = player.data.cx + 64;
+        if (this.powerBall[i].cx + 32 > playerLeft && this.powerBall[i].cx + 32 < playerRight && this.powerBall[i].cy + 32 > player.data.cy && this.powerBall[i].cy + 32 < player.data.cy + 64) {
+          player.superSaiyan = true;
+          this.powerBall[i].cy = -64;
         }
       }
     }
@@ -590,6 +614,7 @@ var Player = function () {
     this.lives = 5;
     this.execute = 0;
     this.hit = false;
+    this.superSaiyan = false;
 
     this.data = {
       sx: 0,
@@ -612,24 +637,38 @@ var Player = function () {
     key: 'update',
     value: function update(deltaTime) {
       this.execute += deltaTime;
-      if (this.hit) {
-        this.data.sx = 0;
-        this.data.sy = 128;
-        if (this.execute > 1000) {
-          this.execute = 0;
-          this.hit = false;
-        }
-      } else {
+      if (this.superSaiyan) {
         if (this.execute > 200) {
           this.data.sx += 64;
-          this.data.sy = 0;
+          this.data.sy = 64;
         }
         if (this.data.sx > 64) {
           this.data.sx = 0;
-          this.data.sy = 0;
+          this.data.sy = 64;
         }
         if (this.execute > 200) {
           this.execute = 0;
+        }
+      } else {
+        if (this.hit) {
+          this.data.sx = 0;
+          this.data.sy = 128;
+          if (this.execute > 1000) {
+            this.execute = 0;
+            this.hit = false;
+          }
+        } else {
+          if (this.execute > 200) {
+            this.data.sx += 64;
+            this.data.sy = 0;
+          }
+          if (this.data.sx > 64) {
+            this.data.sx = 0;
+            this.data.sy = 0;
+          }
+          if (this.execute > 200) {
+            this.execute = 0;
+          }
         }
       }
     }
@@ -646,11 +685,11 @@ var Player = function () {
         }
       }
     }
-  }, {
-    key: 'kill',
-    value: function kill(ctx) {
-      this.data.sy = 336;
-    }
+
+    // kill(ctx) {
+    //   this.data.sy = 336;
+    // }
+
   }]);
 
   return Player;
