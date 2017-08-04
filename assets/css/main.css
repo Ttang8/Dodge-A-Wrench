@@ -36,11 +36,10 @@ body div {
 }
 
 #myCanvas{
-  // border: 1px solid black;
+  overflow: hidden;
 }
 
 #buttons {
-  // border: 1px solid black;
   margin-left: 50px;
 }
 

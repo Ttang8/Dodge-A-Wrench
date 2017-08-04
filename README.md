@@ -8,6 +8,8 @@ Dodge-A-Wrench is a full javascript game. The game is a take on the Texas Instru
 
 This project was blueprinted and created with a 4day deadline using vanilla Javascript, HTML Canvas and CSS
 
+![screenShot](docs/screen_shot.png)
+
 ## Technology
 
 * Dodge-A-Wrench was built using vanilla Javascript for the overall logic and structure of the game.
@@ -19,6 +21,8 @@ This project was blueprinted and created with a 4day deadline using vanilla Java
 ## How to Play
 
 Press Enter to start playing. Use &#8592;/&#8594; arrow keys to dodge incoming wrenches. Grab a power ball and become a super dodgeball player.  A life is lost when you get hit by a wrench. Survive as long as you can and get the high score!
+
+![gif](docs/demo.gif)
 
 ## Features & Implementation
 

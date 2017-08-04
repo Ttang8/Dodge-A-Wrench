@@ -601,6 +601,7 @@ var Wrench = function () {
           this.chargeUp.play();
           player.superSaiyan = true;
           this.powerBall[i].cy = -64;
+          this.powerBall[i].throwing = false;
         }
       }
     }
