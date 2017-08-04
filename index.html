@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="assets/css/main.css">
     <link href="https://fonts.googleapis.com/css?family=Gloria+Hallelujah" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
     <script type="application/javascript" src="bundle.js"></script>
     <title>Dodge a Wrench</title>
   </head>
@@ -12,21 +13,22 @@
       <canvas id="myCanvas" height="600" width="832"></canvas>
       <div class="right-side">
         <div class="header">
-          <h1>Dodge-A-Wrench</h1>
-          Keys:
-          <br/>
-          <ul>
-            <li>
-              -Use left/right arrow keys to move player
-            </li>
-            <li>
-              -Press Enter to Start/Pause Game
-            </li>
-            <li>
-              - Press 'M' to mute music
-            </li>
-          </ul>
-          <br/>
+          <div class="directions">
+            <h1>Dodge-A-Wrench</h1>
+            Keys:
+            <br/>
+            <ul>
+              <li>
+                -Use left/right arrow keys to move player
+              </li>
+              <li>
+                -Press Enter to Start/Pause Game
+              </li>
+              <li>
+                - Press 'M' to mute music
+              </li>
+            </ul>
+            <br/>
             Directions:
             <ul>
               <li>
@@ -37,12 +39,18 @@
                 losing a life
               </li>
               <li>
-                -Start with 5 lives
-              </li>
-              <li>
                 -Get the highest score possible
               </li>
             </ul>
+          </div>
+            <div class="links">
+              <a href="https://github.com/Ttang8/Dodge-A-Wrench" target="_blank">
+                <i class="fa fa-github-square fa-3x" aria-hidden="true"></i>
+              </a>
+              <a>
+                <i class="fa fa-linkedin-square fa-3x" aria-hidden="true"></i>
+              </a>
+            </div>
         </div>
         <canvas id="buttons" height="100" width="350"></canvas>
       </div>
