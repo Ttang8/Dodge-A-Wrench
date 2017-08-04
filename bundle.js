@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var introSpeech = new Audio('assets/audio/intro_speech_dodge.mp3');
   // introSpeech.play();
 
-  var paused = false;
+  var paused = true;
   var muteCheck = false;
   window.addEventListener('keypress', function (event) {
     // if (event.keyCode === 112) {
@@ -139,8 +139,12 @@ document.addEventListener('DOMContentLoaded', function () {
     //   }
     // }
     if (event.keyCode === 13) {
-      newGame();
-      // togglePause();
+      if (gameOver) {
+        newGame();
+      } else {
+        togglePause();
+        gameStarted = true;
+      }
     }
     if (event.keyCode === 109) {
 
@@ -166,17 +170,49 @@ document.addEventListener('DOMContentLoaded', function () {
   var deltaTime = void 0;
   var wrench = void 0;
   var player = void 0;
+  var gameStarted = void 0;
 
   wrench = new _wrench2.default();
   player = new _player2.default();
 
   var newGame = function newGame() {
+    gameStarted = true;
+    gameOver = false;
     wrench = new _wrench2.default();
     player = new _player2.default();
     player.lives = 5;
     // introSpeech.pause();
     bgMusic.play();
     animate();
+    count = 0;
+  };
+  bgMusic.play();
+
+  var startScreen = function startScreen() {
+    ctx.fillStyle = "rgba(0,0,0,0.7)";
+    ctx.fillRect(0, 0, 832, 600);
+    ctx.font = '50px Gloria Hallelujah';
+    ctx.fillStyle = 'white';
+    ctx.fillText('Press Enter to Start', 170, 300);
+  };
+
+  var gameOverScreen = function gameOverScreen() {
+    ctx.fillStyle = "rgba(0,0,0,0.7)";
+    ctx.fillRect(0, 0, 832, 600);
+    ctx.font = '50px Gloria Hallelujah';
+    ctx.fillStyle = 'white';
+    ctx.fillText('Game Over', 300, 250);
+    ctx.fillText('Score: ' + count * 100, 300, 325);
+    ctx.font = '20px Gloria Hallelujah';
+    ctx.fillText('Press Enter to Play Again', 300, 375);
+  };
+
+  var pauseScreen = function pauseScreen() {
+    // ctx.fillStyle = "rgba(0,0,0,0.7)";
+    // ctx.fillRect(0,0,832,600);
+    ctx.font = '50px Gloria Hallelujah';
+    ctx.fillStyle = 'red';
+    ctx.fillText('Paused', 350, 300);
   };
 
   window.onload = function () {
@@ -185,15 +221,22 @@ document.addEventListener('DOMContentLoaded', function () {
     drawLeftUp();
     drawRightUp();
     drawMuteOff();
+    startScreen();
   };
 
   var togglePause = function togglePause() {
     paused = !paused;
   };
 
+  var gameOver = false;
+
+  var toggleGameOver = function toggleGameOver() {
+    gameOver = true;
+  };
+
   var myReq = void 0;
+  gameStarted = false;
   var update = function update(deltaTime) {
-    console.log(paused);
     if (muteCheck) {
       bgMusic.volume = 0;
     } else {
@@ -205,6 +248,14 @@ document.addEventListener('DOMContentLoaded', function () {
     ctx.fillStyle = 'red';
     ctx.fillText('Lives: ' + player.lives, 25, 100);
 
+    ctx.font = '30px Gloria Hallelujah';
+    ctx.fillStyle = 'red';
+    ctx.fillText(Math.floor(wrench.level) + ' :Level', 700, 100);
+
+    ctx.font = '30px Gloria Hallelujah';
+    ctx.fillStyle = 'red';
+    ctx.fillText(count * 100 + ' :Score', 675, 150);
+
     if (muteCheck === true) {
       drawMuteOn();
     } else {
@@ -215,12 +266,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     wrench.create();
     wrench.draw(ctx);
+    wrench.drawPowerBall(ctx);
+    wrench.drawThrower(ctx);
+    wrench.updateThrower();
     wrench.update(deltaTime);
     wrench.destroy();
     wrench.handleThrow();
-    if (!paused) {
-      myReq = requestAnimationFrame(animate);
-    }
     if (player.lives === 0) {
       // ctx.clearRect(player.data.cx, player.data.cy, 64, 64);
 
@@ -228,29 +279,47 @@ document.addEventListener('DOMContentLoaded', function () {
       player.data.sx = 64;
       player.draw(ctx);
       cancelAnimationFrame(myReq);
+      toggleGameOver();
       bgMusic.pause();
+      gameOverScreen();
+      gameStarted = false;
     }
 
     player.draw(ctx);
     player.update(deltaTime);
     if (key && key === 37) {
-      player.move(-4);
+      player.move(-3.5 - wrench.level / 2);
       drawLeftDown();
     }
 
     if (key && key === 39) {
-      player.move(4);
+      player.move(3.5 + wrench.level / 2);
       drawRightDown();
     }
-    wrench.hit(player);
+    wrench.hit(player, muteCheck);
   };
 
+  var count = 0;
   var animate = function animate() {
     var time = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
+    if (time % 1000 > 983 && !paused) {
+      count += 1;
+      wrench.level += 0.1;
+    }
+    // if (count % 10 === 0 && !paused) {
+    //   wrench.level += 1;
+    //   console.log(wrench.level);
+    // }
     deltaTime = time - lastTime;
     lastTime = time;
-    update(deltaTime);
+    myReq = requestAnimationFrame(animate);
+    if (!paused) {
+      update(deltaTime);
+    }
+    if (paused && gameStarted === true) {
+      pauseScreen();
+    }
   };
 
   var updateButtons = function updateButtons() {
@@ -281,6 +350,7 @@ document.addEventListener('DOMContentLoaded', function () {
     updateButtons();
     requestAnimationFrame(animateButtons);
   };
+  animate();
   animateButtons();
 });
 
@@ -307,6 +377,9 @@ var Wrench = function () {
     this.image.src = './assets/images/wrench_small.png';
     this.wrenchHit = new Audio('assets/audio/wrench_hit.mp3');
     this.wrenchHit.volume = 1;
+    this.wrenchThrower = new Image();
+    this.wrenchThrower.src = './assets/images/wheel_chair_man_2.png';
+    this.level = 1;
 
     this.data = {
       sx: 0,
@@ -319,6 +392,8 @@ var Wrench = function () {
       dh: 64
     };
     this.wrenches = [];
+    this.thrower = [];
+    this.powerBall = [];
     this.execute = 0;
   }
 
@@ -335,28 +410,80 @@ var Wrench = function () {
           height: 64,
           throwing: false
         });
+        this.thrower.push({
+          sx: this.data.sx,
+          sy: this.data.sy,
+          cx: this.data.cx,
+          cy: this.data.cy,
+          width: 64,
+          height: 64
+        });
+        this.powerBall.push({
+          cx: this.data.cx,
+          cy: this.data.cy - 64,
+          throwing: false
+        });
       }
       this.data.cx += 64;
     }
   }, {
-    key: 'draw',
-    value: function draw(ctx) {
+    key: 'drawPowerBall',
+    value: function drawPowerBall(ctx) {
+      this.powerBall.forEach(function (ball) {
+        ctx.fillStyle = 'red';
+        ctx.fillRect(ball.cx, ball.cy, 64, 64);
+      });
+    }
+  }, {
+    key: 'drawThrower',
+    value: function drawThrower(ctx) {
       var _this = this;
 
+      this.thrower.forEach(function (thrower) {
+        ctx.drawImage(_this.wrenchThrower, thrower.sx, thrower.sy, thrower.width, thrower.height, thrower.cx, thrower.cy, thrower.width, thrower.height);
+      });
+    }
+  }, {
+    key: 'draw',
+    value: function draw(ctx) {
+      var _this2 = this;
+
       this.wrenches.forEach(function (wrench, idx) {
-        ctx.drawImage(_this.image, wrench.sx, wrench.sy, wrench.width, wrench.height, wrench.cx, wrench.cy, wrench.width, wrench.height);
+        ctx.drawImage(_this2.image, wrench.sx, wrench.sy, wrench.width, wrench.height, wrench.cx, wrench.cy, wrench.width, wrench.height);
+      });
+    }
+  }, {
+    key: 'updateThrower',
+    value: function updateThrower() {
+      var _this3 = this;
+
+      this.thrower.forEach(function (thrower, idx) {
+        if (_this3.wrenches[idx].throwing === false) {
+          if (_this3.execute > 80) {
+            thrower.sx += 64;
+          }
+          if (thrower.sx > 128) {
+            thrower.sx = 0;
+          }
+        }
       });
     }
   }, {
     key: 'update',
     value: function update(deltaTime) {
-      var _this2 = this;
+      var _this4 = this;
 
       this.execute += deltaTime;
+      this.powerBall.forEach(function (ball) {
+        if (ball.throwing) {
+          ball.cy += 5 + Math.floor(_this4.level);
+        }
+      });
+
       this.wrenches.forEach(function (wrench, idx) {
         if (wrench.throwing) {
-          wrench.cy += 5;
-          if (_this2.execute > 100) {
+          wrench.cy += 5 + Math.floor(_this4.level);
+          if (_this4.execute > 100) {
             wrench.sx += 64;
           }
           if (wrench.sx > 192) {
@@ -387,20 +514,43 @@ var Wrench = function () {
       }
     }
   }, {
+    key: 'setThrowBall',
+    value: function setThrowBall(idx) {
+      if (this.powerBall.length === 13) {
+        this.powerBall[idx].throwing = true;
+      }
+    }
+  }, {
     key: 'handleThrow',
     value: function handleThrow() {
-      var throwInterval = Math.round(Math.random() * 4);
-      if (throwInterval === 4) {
+      var num = Math.floor(this.level) * 0.5;
+      if (4 - num < 1) {
+        num = 3;
+      }
+      var prob = Math.round(Math.random() * 4) - num;
+
+      var throwInterval = Math.round(Math.random() * (4 - Math.round(num)));
+      if (throwInterval === 4 - Math.round(num)) {
         this.setThrow(Math.floor(Math.random() * 13));
+      }
+
+      var ballProb = Math.round(Math.random() * 20);
+      if (ballProb === 20) {
+        this.setThrowBall(Math.floor(Math.random() * 13));
       }
     }
   }, {
     key: 'hit',
-    value: function hit(player) {
+    value: function hit(player, muteCheck) {
       for (var i = 0; i < this.wrenches.length; i++) {
         var playerLeft = player.data.cx + 0;
         var playerRight = player.data.cx + 64;
         if (this.wrenches[i].cx + 32 > playerLeft && this.wrenches[i].cx + 32 < playerRight && this.wrenches[i].cy + 32 > player.data.cy && this.wrenches[i].cy + 32 < player.data.cy + 64) {
+          if (muteCheck) {
+            this.wrenchHit.volume = 0;
+          } else {
+            this.wrenchHit.volume = 1;
+          }
           this.wrenchHit.play();
           this.wrenches[i].cy = 0;
           this.wrenches[i].throwing = false;
