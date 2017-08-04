@@ -298,7 +298,7 @@ document.addEventListener('DOMContentLoaded', function () {
       drawRightDown();
     }
     wrench.hit(player, muteCheck);
-    wrench.powerUp(player);
+    wrench.powerUp(player, muteCheck);
   };
 
   var count = 0;
@@ -381,6 +381,10 @@ var Wrench = function () {
     this.wrenchHit.volume = 1;
     this.wrenchThrower = new Image();
     this.wrenchThrower.src = './assets/images/wheel_chair_man_2.png';
+    this.ballImage = new Image();
+    this.ballImage.src = 'assets/images/dragon_ball.png';
+    this.chargeUp = new Audio('assets/audio/charge_up.mp3');
+    this.chargeUp.volume = 1;
     this.level = 1;
 
     this.data = {
@@ -421,8 +425,12 @@ var Wrench = function () {
           height: 64
         });
         this.powerBall.push({
+          sx: this.data.sx,
+          sy: this.data.sy,
           cx: this.data.cx,
           cy: this.data.cy - 64,
+          width: 64,
+          height: 64,
           throwing: false
         });
       }
@@ -431,37 +439,38 @@ var Wrench = function () {
   }, {
     key: 'drawPowerBall',
     value: function drawPowerBall(ctx) {
+      var _this = this;
+
       this.powerBall.forEach(function (ball) {
-        ctx.fillStyle = 'red';
-        ctx.fillRect(ball.cx, ball.cy, 64, 64);
+        ctx.drawImage(_this.ballImage, ball.sx, ball.sy, ball.width, ball.height, ball.cx, ball.cy, ball.width, ball.height);
       });
     }
   }, {
     key: 'drawThrower',
     value: function drawThrower(ctx) {
-      var _this = this;
+      var _this2 = this;
 
       this.thrower.forEach(function (thrower) {
-        ctx.drawImage(_this.wrenchThrower, thrower.sx, thrower.sy, thrower.width, thrower.height, thrower.cx, thrower.cy, thrower.width, thrower.height);
+        ctx.drawImage(_this2.wrenchThrower, thrower.sx, thrower.sy, thrower.width, thrower.height, thrower.cx, thrower.cy, thrower.width, thrower.height);
       });
     }
   }, {
     key: 'draw',
     value: function draw(ctx) {
-      var _this2 = this;
+      var _this3 = this;
 
       this.wrenches.forEach(function (wrench, idx) {
-        ctx.drawImage(_this2.image, wrench.sx, wrench.sy, wrench.width, wrench.height, wrench.cx, wrench.cy, wrench.width, wrench.height);
+        ctx.drawImage(_this3.image, wrench.sx, wrench.sy, wrench.width, wrench.height, wrench.cx, wrench.cy, wrench.width, wrench.height);
       });
     }
   }, {
     key: 'updateThrower',
     value: function updateThrower() {
-      var _this3 = this;
+      var _this4 = this;
 
       this.thrower.forEach(function (thrower, idx) {
-        if (_this3.wrenches[idx].throwing === false) {
-          if (_this3.execute > 80) {
+        if (_this4.wrenches[idx].throwing === false) {
+          if (_this4.execute > 80) {
             thrower.sx += 64;
           }
           if (thrower.sx > 128) {
@@ -473,19 +482,25 @@ var Wrench = function () {
   }, {
     key: 'update',
     value: function update(deltaTime) {
-      var _this4 = this;
+      var _this5 = this;
 
       this.execute += deltaTime;
       this.powerBall.forEach(function (ball) {
         if (ball.throwing) {
-          ball.cy += 5 + Math.floor(_this4.level);
+          ball.cy += 5 + Math.floor(_this5.level);
+          if (_this5.execute > 100) {
+            ball.sx += 64;
+          }
+          if (ball.sx > 128) {
+            ball.sx = 0;
+          }
         }
       });
 
       this.wrenches.forEach(function (wrench, idx) {
         if (wrench.throwing) {
-          wrench.cy += 5 + Math.floor(_this4.level);
-          if (_this4.execute > 100) {
+          wrench.cy += 5 + Math.floor(_this5.level);
+          if (_this5.execute > 100) {
             wrench.sx += 64;
           }
           if (wrench.sx > 192) {
@@ -573,11 +588,17 @@ var Wrench = function () {
     }
   }, {
     key: 'powerUp',
-    value: function powerUp(player) {
+    value: function powerUp(player, muteCheck) {
       for (var i = 0; i < this.powerBall.length; i++) {
         var playerLeft = player.data.cx + 0;
         var playerRight = player.data.cx + 64;
         if (this.powerBall[i].cx + 32 > playerLeft && this.powerBall[i].cx + 32 < playerRight && this.powerBall[i].cy + 32 > player.data.cy && this.powerBall[i].cy + 32 < player.data.cy + 64) {
+          if (muteCheck) {
+            this.chargeUp.volume = 0;
+          } else {
+            this.chargeUp.volume = 0.8;
+          }
+          this.chargeUp.play();
           player.superSaiyan = true;
           this.powerBall[i].cy = -64;
         }
