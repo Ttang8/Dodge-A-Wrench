@@ -27,6 +27,7 @@ body {
   justify-content: center;
   align-items: center;
   background-image: url('../images/dodge_ball_bg.png');
+  background-size: cover;
 }
 
 body div {

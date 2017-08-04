@@ -1,54 +1,106 @@
-### Dodge a Wrench
+# Dodge-A-Wrench
 
 
-### Background
-
-Dodge a Wrench is a Javascript take on the Texas Instruments graphing calculator game, *Avalanche*.
-
-The goal is to move left and right in order to avoid the incoming wrenches that will be thrown. The number of wrenches and speed will increase as time goes on.  When hit by a wrench, a life is lost, and when all lives are gone the game is over. Avoid getting hit by too many wrenches.
-
-### MVP
-
-- [ ] Ability to start, pause, and restart game
-- [ ] Use &#8592;/&#8594; keys to move player from left to right.
-- [ ] Increasing score as time passes.
-- [ ] Registers hit and loses life.
-- [ ] Power Ups / Bad Power Ups ex. shield / moving slower
+[Dodge-A-Wrench Live][Dodge]
 
 
-### Wireframe
+Dodge-A-Wrench is a full javascript game. The game is a take on the Texas Instruments graphing calculator game, *Avalanche*.
 
-Game window in the center of the browser. Points and lives to the left of the game. Instructions and welcome message on the right. Github link, and any other links on the bottom right.
+This project was blueprinted and created with a 4day deadline using vanilla Javascript, HTML Canvas and CSS
 
-![wireframe](docs/wireframe_ui.png)
+## Technology
 
-### Technologies
-- JavaScript with `jquery` for logic.
-- `HTML5 Canvas` with `Easel.js` used for render and DOM manipulation.
-- Webpack for bundling.
+* Dodge-A-Wrench was built using vanilla Javascript for the overall logic and structure of the game.
 
-Possible scripts involved in project:
-- `wrench.js`: The objects coming top to bottom of game.
-- `player.js`: The objected that will be controlled.
-- `game.js`: Handle the logic of wrench creations and player movements and hit logic.
+* HTML and CSS was used for the audio, sprite handling and overall aesthetics.
 
-### Implementation Timeline
-#### Day 1
+* Webpack used to bundle files
 
-Set up Webpack and learning `Easel.js`. Constructing the canvas.
+## How to Play
 
-#### Day 2
+Press Enter to start playing. Use &#8592;/&#8594; arrow keys to dodge incoming wrenches. Grab a power ball and become a super dodgeball player.  A life is lost when you get hit by a wrench. Survive as long as you can and get the high score!
 
-Work on wrench object and player object and movements.  Logic of generating wrench objects to fall.
+## Features & Implementation
 
-#### Day 3
+The wrenches and the powerups are treated a projectiles and are given a thrown property that toggles between true and false to determine probability of being thrown.
 
-Bring all pieces together, making sure they all run bug free. Work on finishing styling.
+``` javascript
+// wrench.js
+setThrowBall(idx) {
+  if (this.powerBall.length === 13) {
+    this.powerBall[idx].throwing = true;
+  }
+}
 
-#### Day 4
+handleThrow() {
+  let num = (Math.floor(this.level) * 0.5);
+  if ((4 - num) < 1) {
+    num = 3;
+  }
+  let prob = Math.round(Math.random() * 4) - num;
 
-Finish up on any styling and or bugs still present. Use remaining time to try to implement bonus feature.
+  let throwInterval = Math.round(Math.random() * (4-Math.round(num)));
+  if (throwInterval === (4-Math.round(num))) {
+    this.setThrow(Math.floor(Math.random() * 13));
+  }
 
-#### BONUS
-- User being able to set difficulty starting level. Get points faster.
-- Music/animations with object interactions.
+  let ballProb = Math.round(Math.random() * 100);
+  if (ballProb === 100) {
+    this.setThrowBall(Math.floor(Math.random() * 13));
+  }
+}
+```
+
+As levels go up, the speed of the projectiles and the player increases for more difficulty.
+
+``` javascript
+// wrench.js
+update(deltaTime) {
+  this.execute += deltaTime;
+  this.powerBall.forEach((ball) => {
+    if (ball.throwing) {
+      ball.cy += (5 + Math.floor(this.level));
+      if (this.execute > 100) {
+        ball.sx += 64;
+      }
+      if (ball.sx > 128) {
+        ball.sx = 0;
+      }
+    }
+  });
+
+  this.wrenches.forEach( (wrench, idx) => {
+    if (wrench.throwing) {
+      wrench.cy += (5 + (Math.floor(this.level)));
+      if (this.execute > 100) {
+        wrench.sx += 64;
+      }
+      if (wrench.sx > 192) {
+        wrench.sx = 0;
+      }
+    }
+  });
+  if (this.execute > 100) {
+    this.execute = 0;
+  }
+}
+
+// dodge_a_wrench.js
+if (key && key === 37) {
+  player.move(-3.5 - (wrench.level/2));
+  drawLeftDown();
+}
+
+if (key && key === 39) {
+  player.move(3.5 + (wrench.level/2));
+  drawRightDown();
+}
+```
+
+## Future Features for the Project
+
+- [ ] More kinds of power ups
+- [ ] Ability to use a mouse to move player
+- [ ] Ability for player to go up and down
+
+[Dodge]:https://ttang8.github.io/Dodge-A-Wrench/
