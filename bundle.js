@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // introSpeech.play();
 
   var paused = true;
-  var muteCheck = false;
+  var muteCheck = true;
   window.addEventListener('keypress', function (event) {
     // if (event.keyCode === 112) {
     //   if (pause) {
@@ -158,6 +158,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   var key = void 0;
   window.addEventListener('keydown', function (event) {
+    if ([37, 39].indexOf(event.keyCode) > -1) {
+      event.preventDefault();
+    }
     key = event.keyCode;
   });
 
@@ -193,7 +196,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ctx.fillRect(0, 0, 832, 600);
     ctx.font = '50px Gloria Hallelujah';
     ctx.fillStyle = 'white';
-    ctx.fillText('Press Enter to Start', 170, 300);
+    ctx.fillText('Press Enter to Start/Pause', 90, 300);
   };
 
   var gameOverScreen = function gameOverScreen() {
